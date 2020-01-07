@@ -35,10 +35,10 @@ This is using a SKR Mini E3 v1.2 \
     - `#define CR10_STOCKDISPLAY` &rarr; Enabled
     - `#define SPEAKER` &rarr; Disabled
 
-- In Configuration_adv.h 
+- In Configuration_adv.h
   - Enable:
     - `#define SDCARD_CONNECTION ONBOARD` - So can access SD Card via Raspberry Pi
- 
+
 <!-- - Fix EEPROM Problems
   - Marlin > src > Pins > stm32 > pins_BTT_SKR_MINI_E3_DIP.h
   - Change:
