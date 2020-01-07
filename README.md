@@ -12,16 +12,14 @@ This is using a SKR Mini E3 v1.2 \
 - In platformio.ini, change:
 
   - `default_envs` &rarr; to on of the `STM32F103RC_bigtree` varients e.g. `STM32F103RC_bigtree_512k`
-  - Under `[common]`
-    - Comment out:
-      - `TMCStepper@>=0.5.0,<1.0.0`
-      - `Adafruit NeoPixel@1.2.5`
-    - Add:
-      - `https://github.com/bigtreetech/TMCStepper`
-      - `https://github.com/bigtreetech/Adafruit_NeoPixel`
-  - Under `[env:STM32F103RC_bigtree]` or the selected variant
-    - Delete `Adafruit NeoPixel` from `lib_ignore`
-    - Ensure have `-DHAVE_SW_SERIAL` in `build_flags`
+  - If want to use NeoPixel
+    - Under `[common]`
+      - Comment out:
+        - `Adafruit NeoPixel@1.2.5`
+      - Add:
+        - `https://github.com/bigtreetech/Adafruit_NeoPixel`
+    - Under `[env:STM32F103RC_bigtree]` or the selected variant
+      - Delete `Adafruit NeoPixel` from `lib_ignore`
 
 - In Configuration.h &rarr; (These should be set by the copied config files)
   - Ensure:
