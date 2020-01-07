@@ -197,6 +197,56 @@
 #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
 #define LPQ_MAX_LEN 50
 #endif
+
+/**
+   * Add an experimental additional term to the heater power, proportional to the fan speed.
+   * A well-chosen Kf value should add just enough power to compensate for power-loss from the cooling fan.
+   * You can either just add a constant compensation with the DEFAULT_Kf value
+   * or follow the instruction below to get speed-dependent compensation.
+   *
+   * Constant compensation (use only with fanspeeds of 0% and 100%)
+   * ---------------------------------------------------------------------
+   * A good starting point for the Kf-value comes from the calculation:
+   *   kf = (power_fan * eff_fan) / power_heater * 255
+   * where eff_fan is between 0.0 and 1.0, based on fan-efficiency and airflow to the nozzle / heater.
+   *
+   * Example:
+   *   Heater: 40W, Fan: 0.1A * 24V = 2.4W, eff_fan = 0.8
+   *   Kf = (2.4W * 0.8) / 40W * 255 = 12.24
+   *
+   * Fan-speed dependent compensation
+   * --------------------------------
+   * 1. To find a good Kf value, set the hotend temperature, wait for it to settle, and enable the fan (100%).
+   *    Make sure PID_FAN_SCALING_LIN_FACTOR is 0 and PID_FAN_SCALING_ALTERNATIVE_DEFINITION is not enabled.
+   *    If you see the temperature drop repeat the test, increasing the Kf value slowly, until the temperature
+   *    drop goes away. If the temperature overshoots after enabling the fan, the Kf value is too big.
+   * 2. Note the Kf-value for fan-speed at 100%
+   * 3. Determine a good value for PID_FAN_SCALING_MIN_SPEED, which is around the speed, where the fan starts moving.
+   * 4. Repeat step 1. and 2. for this fan speed.
+   * 5. Enable PID_FAN_SCALING_ALTERNATIVE_DEFINITION and enter the two identified Kf-values in
+   *    PID_FAN_SCALING_AT_FULL_SPEED and PID_FAN_SCALING_AT_MIN_SPEED. Enter the minimum speed in PID_FAN_SCALING_MIN_SPEED
+   */
+//#define PID_FAN_SCALING
+#if ENABLED(PID_FAN_SCALING)
+//#define PID_FAN_SCALING_ALTERNATIVE_DEFINITION
+#if ENABLED(PID_FAN_SCALING_ALTERNATIVE_DEFINITION)
+// The alternative definition is used for an easier configuration.
+// Just figure out Kf at fullspeed (255) and PID_FAN_SCALING_MIN_SPEED.
+// DEFAULT_Kf and PID_FAN_SCALING_LIN_FACTOR are calculated accordingly.
+
+#define PID_FAN_SCALING_AT_FULL_SPEED 13.0 //=PID_FAN_SCALING_LIN_FACTOR*255+DEFAULT_Kf
+#define PID_FAN_SCALING_AT_MIN_SPEED 6.0   //=PID_FAN_SCALING_LIN_FACTOR*PID_FAN_SCALING_MIN_SPEED+DEFAULT_Kf
+#define PID_FAN_SCALING_MIN_SPEED 10.0     // Minimum fan speed at which to enable PID_FAN_SCALING
+
+#define DEFAULT_Kf (255.0 * PID_FAN_SCALING_AT_MIN_SPEED - PID_FAN_SCALING_AT_FULL_SPEED * PID_FAN_SCALING_MIN_SPEED) / (255.0 - PID_FAN_SCALING_MIN_SPEED)
+#define PID_FAN_SCALING_LIN_FACTOR (PID_FAN_SCALING_AT_FULL_SPEED - DEFAULT_Kf) / 255.0
+
+#else
+#define PID_FAN_SCALING_LIN_FACTOR (0) // Power loss due to cooling = Kf * (fan_speed)
+#define DEFAULT_Kf 10                  // A constant value added to the PID-tuner
+#define PID_FAN_SCALING_MIN_SPEED 10   // Minimum fan speed at which to enable PID_FAN_SCALING
+#endif
+#endif
 #endif
 
 /**
@@ -388,9 +438,9 @@
 //#define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
 #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
 #define CASE_LIGHT_NEOPIXEL_COLOR \
-  {                               \
-    255, 255, 255, 255            \
-  } // { Red, Green, Blue, White }
+   {                              \
+      255, 255, 255, 255          \
+   } // { Red, Green, Blue, White }
 #endif
 #endif
 
@@ -526,9 +576,9 @@
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
 #define HOMING_BUMP_DIVISOR \
-  {                         \
-    2, 2, 4                 \
-  }                // Re-Bump Speed Divisor (Divides the Homing Feedrate)
+   {                        \
+      2, 2, 4               \
+   }               // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 #define QUICK_HOME // If homing includes X and Y, do a diagonal move initially
 //#define HOMING_BACKOFF_MM { 2, 2, 2 }  // (mm) Move away from the endstops after homing
 
@@ -612,10 +662,10 @@
 //#define Z_STEPPER_AUTO_ALIGN
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
 // Define probe X and Y positions for Z1, Z2 [, Z3]
-#define Z_STEPPER_ALIGN_XY             \
-  {                                    \
-    {10, 290}, {150, 10}, { 290, 290 } \
-  }
+#define Z_STEPPER_ALIGN_XY               \
+   {                                     \
+      {10, 190}, {100, 10}, { 190, 190 } \
+   }
 
 // Provide Z stepper positions for more rapid convergence in bed alignment.
 // Currently requires triple stepper drivers.
@@ -624,10 +674,10 @@
 // Define Stepper XY positions for Z1, Z2, Z3 corresponding to
 // the Z screw positions in the bed carriage.
 // Define one position per Z stepper in stepper driver order.
-#define Z_STEPPER_ALIGN_STEPPER_XY                  \
-  {                                                 \
-    {210.7, 102.5}, {152.6, 220.0}, { 94.5, 102.5 } \
-  }
+#define Z_STEPPER_ALIGN_STEPPER_XY                    \
+   {                                                  \
+      {210.7, 102.5}, {152.6, 220.0}, { 94.5, 102.5 } \
+   }
 #else
 // Amplification factor. Used to scale the correction step up or down.
 // In case the stepper (spindle) position is further out than the test point.
@@ -650,10 +700,10 @@
 
 // @section motion
 
-#define AXIS_RELATIVE_MODES    \
-  {                            \
-    false, false, false, false \
-  }
+#define AXIS_RELATIVE_MODES      \
+   {                             \
+      false, false, false, false \
+   }
 
 // Add a Duplicate option for well-separated conjoined nozzles
 //#define MULTI_NOZZLE_DUPLICATION
@@ -703,9 +753,9 @@
 // Define values for backlash distance and correction.
 // If BACKLASH_GCODE is enabled these values are the defaults.
 #define BACKLASH_DISTANCE_MM \
-  {                          \
-    0, 0, 0                  \
-  }                             // (mm)
+   {                         \
+      0, 0, 0                \
+   }                            // (mm)
 #define BACKLASH_CORRECTION 0.0 // 0.0 = no correction; 1.0 = full correction
 
 // Set BACKLASH_SMOOTHING_MM to spread backlash correction over multiple segments
@@ -761,13 +811,13 @@
 
 // The true location and dimension the cube/bolt/washer on the bed.
 #define CALIBRATION_OBJECT_CENTER \
-  {                               \
-    264.0, -22.0, -2.0            \
-  } // mm
+   {                              \
+      264.0, -22.0, -2.0          \
+   } // mm
 #define CALIBRATION_OBJECT_DIMENSIONS \
-  {                                   \
-    10.0, 10.0, 10.0                  \
-  } // mm
+   {                                  \
+      10.0, 10.0, 10.0                \
+   } // mm
 
 // Comment out any sides which are unreachable by the probe. For best
 // auto-calibration results, all sides must be reachable.
@@ -809,10 +859,10 @@
 //#define MICROSTEP32 HIGH,LOW,HIGH
 
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
-#define MICROSTEP_MODES    \
-  {                        \
-    16, 16, 16, 16, 16, 16 \
-  } // [1,2,4,8,16]
+#define MICROSTEP_MODES      \
+   {                         \
+      16, 16, 16, 16, 16, 16 \
+   } // [1,2,4,8,16]
 
 /**
  *  @section  stepper motor current
@@ -859,10 +909,10 @@
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8     MKS SBASE: 5
 // Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
 // These correspond to the physical drivers, so be mindful if the order is changed.
-#define DIGIPOT_I2C_MOTOR_CURRENTS         \
-  {                                        \
-    1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 \
-  } //  AZTEEG_X3_PRO
+#define DIGIPOT_I2C_MOTOR_CURRENTS           \
+   {                                         \
+      1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 \
+   } //  AZTEEG_X3_PRO
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -871,10 +921,10 @@
 // @section lcd
 
 #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-#define MANUAL_FEEDRATE              \
-  {                                  \
-    50 * 60, 50 * 60, 4 * 60, 2 * 60 \
-  }                               // Feedrates for manual moves along X, Y, Z, E from panel
+#define MANUAL_FEEDRATE                \
+   {                                   \
+      50 * 60, 50 * 60, 4 * 60, 2 * 60 \
+   }                              // Feedrates for manual moves along X, Y, Z, E from panel
 #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
 #if ENABLED(ULTIPANEL)
 #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
@@ -1556,16 +1606,16 @@
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2 (e.g. 8, 16, 32) because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-#define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+#define BLOCK_BUFFER_SIZE 32 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
-#define BLOCK_BUFFER_SIZE 16 // maximize block buffer
+#define BLOCK_BUFFER_SIZE 32 // maximize block buffer
 #endif
 
 // @section serial
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 4
+#define BUFSIZE 32
 
 // Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
@@ -1574,7 +1624,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE 32
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -1690,10 +1740,10 @@
    */
 //#define TOOLCHANGE_PARK
 #if ENABLED(TOOLCHANGE_PARK)
-#define TOOLCHANGE_PARK_XY         \
-  {                                \
-    X_MIN_POS + 10, Y_MIN_POS + 10 \
-  }
+#define TOOLCHANGE_PARK_XY           \
+   {                                 \
+      X_MIN_POS + 10, Y_MIN_POS + 10 \
+   }
 #define TOOLCHANGE_PARK_XY_FEEDRATE 6000 // (mm/m)
 #endif
 #endif
@@ -1708,7 +1758,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-//#define ADVANCED_PAUSE_FEATURE
+#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 #define PAUSE_PARK_RETRACT_FEEDRATE 60       // (mm/s) Initial retract feedrate.
 #define PAUSE_PARK_RETRACT_LENGTH 2          // (mm) Initial retract. \
@@ -1737,9 +1787,9 @@
 //#define ADVANCED_PAUSE_FANS_PAUSE             // Turn off print-cooling fans while the machine is paused.
 
 // Filament Unload does a Retract, Delay, and Purge first:
-#define FILAMENT_UNLOAD_RETRACT_LENGTH 13 // (mm) Unload initial retract length.
-#define FILAMENT_UNLOAD_DELAY 5000        // (ms) Delay for the filament to cool after retract.
-#define FILAMENT_UNLOAD_PURGE_LENGTH 8    // (mm) An unretract is done, then this length is purged.
+#define FILAMENT_UNLOAD_PURGE_RETRACT 13 // (mm) Unload initial retract length.
+#define FILAMENT_UNLOAD_PURGE_DELAY 5000 // (ms) Delay for the filament to cool after retract.
+#define FILAMENT_UNLOAD_PURGE_LENGTH 8   // (mm) An unretract is done, then this length is purged.
 
 #define PAUSE_PARK_NOZZLE_TIMEOUT 45   // (seconds) Time limit before the nozzle is turned off for safety.
 #define FILAMENT_CHANGE_ALERT_BEEPS 10 // Number of alert beeps to play when a response is needed.
@@ -2076,7 +2126,7 @@
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
    */
-//#define HYBRID_THRESHOLD
+#define HYBRID_THRESHOLD
 
 #define X_HYBRID_THRESHOLD 100 // [mm/s]
 #define X2_HYBRID_THRESHOLD 100
@@ -2132,7 +2182,6 @@
 #define Y_STALL_SENSITIVITY 8
 //#define Z_STALL_SENSITIVITY  8
 //#define SPI_ENDSTOPS              // TMC2130 only
-//#define HOME_USING_SPREADCYCLE
 //#define IMPROVE_HOMING_RELIABILITY
 #endif
 
@@ -2160,8 +2209,8 @@
    * }
    */
 #define TMC_ADV() \
-  {               \
-  }
+   {              \
+   }
 
 #endif // HAS_TRINAMIC
 
@@ -2713,18 +2762,18 @@
 #define JOY_EN_PIN 44 // RAMPS: Suggested pin D44 on AUX2
 
 // Use M119 to find reasonable values after connecting your hardware:
-#define JOY_X_LIMITS                    \
-  {                                     \
-    5600, 8190 - 100, 8190 + 100, 10800 \
-  } // min, deadzone start, deadzone end, max
-#define JOY_Y_LIMITS                    \
-  {                                     \
-    5600, 8250 - 100, 8250 + 100, 11000 \
-  }
-#define JOY_Z_LIMITS                    \
-  {                                     \
-    4800, 8080 - 100, 8080 + 100, 11550 \
-  }
+#define JOY_X_LIMITS                      \
+   {                                      \
+      5600, 8190 - 100, 8190 + 100, 10800 \
+   } // min, deadzone start, deadzone end, max
+#define JOY_Y_LIMITS                      \
+   {                                      \
+      5600, 8250 - 100, 8250 + 100, 11000 \
+   }
+#define JOY_Z_LIMITS                      \
+   {                                      \
+      4800, 8080 - 100, 8080 + 100, 11550 \
+   }
 #endif
 
 /**
@@ -2812,28 +2861,28 @@
 // This is for Prusa MK3-style extruders. Customize for your hardware.
 #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
 #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-  {7.2, 562},                        \
-      {14.4, 871},                   \
-      {36.0, 1393},                  \
-      {14.4, 871},                   \
-  {                                  \
-    50.0, 198                        \
-  }
+   {7.2, 562},                       \
+       {14.4, 871},                  \
+       {36.0, 1393},                 \
+       {14.4, 871},                  \
+   {                                 \
+      50.0, 198                      \
+   }
 
 #define MMU2_RAMMING_SEQUENCE \
-  {1.0, 1000},                \
-      {1.0, 1500},            \
-      {2.0, 2000},            \
-      {1.5, 3000},            \
-      {2.5, 4000},            \
-      {-15.0, 5000},          \
-      {-14.0, 1200},          \
-      {-6.0, 600},            \
-      {10.0, 700},            \
-      {-10.0, 400},           \
-  {                           \
-    -50.0, 2000               \
-  }
+   {1.0, 1000},               \
+       {1.0, 1500},           \
+       {2.0, 2000},           \
+       {1.5, 3000},           \
+       {2.5, 4000},           \
+       {-15.0, 5000},         \
+       {-14.0, 1200},         \
+       {-6.0, 600},           \
+       {10.0, 700},           \
+       {-10.0, 400},          \
+   {                          \
+      -50.0, 2000             \
+   }
 
 #endif
 

@@ -343,21 +343,21 @@
 //#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
-  #define PSU_ACTIVE_HIGH false     // Set 'false' for ATX, 'true' for X-Box
+#define PSU_ACTIVE_HIGH false // Set 'false' for ATX, 'true' for X-Box
 
-  //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
-  //#define PSU_POWERUP_DELAY 100   // (ms) Delay for the PSU to warm up to full power
+//#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
+//#define PSU_POWERUP_DELAY 100   // (ms) Delay for the PSU to warm up to full power
 
-  //#define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
-  #if ENABLED(AUTO_POWER_CONTROL)
-    #define AUTO_POWER_FANS         // Turn on PSU if fans need power
-    #define AUTO_POWER_E_FANS
-    #define AUTO_POWER_CONTROLLERFAN
-    #define AUTO_POWER_CHAMBER_FAN
-    //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU over this temperature
-    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU over this temperature
-    #define POWER_TIMEOUT 30
-  #endif
+//#define AUTO_POWER_CONTROL  // Enable automatic control of the PS_ON pin
+#if ENABLED(AUTO_POWER_CONTROL)
+#define AUTO_POWER_FANS // Turn on PSU if fans need power
+#define AUTO_POWER_E_FANS
+#define AUTO_POWER_CONTROLLERFAN
+#define AUTO_POWER_CHAMBER_FAN
+//#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU over this temperature
+//#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU over this temperature
+#define POWER_TIMEOUT 30
+#endif
 #endif
 
 // @section temperature
@@ -516,7 +516,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-//#define PIDTEMPBED
+#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -534,9 +534,9 @@
 
 //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-#define DEFAULT_bedKp 10.00
-#define DEFAULT_bedKi .023
-#define DEFAULT_bedKd 305.4
+//#define DEFAULT_bedKp 10.00
+//#define DEFAULT_bedKi .023
+//#define DEFAULT_bedKd 305.4
 
 //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from pidautotune
@@ -545,6 +545,10 @@
 //#define DEFAULT_bedKd 1675.16
 
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+#define DEFAULT_bedKp 50.71
+#define DEFAULT_bedKi 9.88
+#define DEFAULT_bedKd 173.43
+
 #endif // PIDTEMPBED
 
 // @section extruder
@@ -1490,7 +1494,7 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-//#define NOZZLE_PARK_FEATURE
+#define NOZZLE_PARK_FEATURE
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 // Specify a park position as { X, Y, Z_raise }
@@ -1602,7 +1606,7 @@
  *
  * View the current statistics with M78.
  */
-#define PRINTCOUNTER
+//#define PRINTCOUNTER
 
 //=============================================================================
 //============================= LCD and SD support ============================
@@ -1677,7 +1681,7 @@
  *
  * Use CRC checks and retries on the SD communication.
  */
-#define SD_CHECK_AND_RETRY
+//#define SD_CHECK_AND_RETRY
 
 /**
  * LCD Menu Items
@@ -2127,7 +2131,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-#define FAN_SOFT_PWM
+//#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
