@@ -1,12 +1,16 @@
 <!-- Configuration.h
 #define STRING_CONFIG_H_AUTHOR "(arranhs, Ender-3)" // Who made the changes. -->
 
-# Initial Marlin Setup
+# Marlin Setup
 
-This is using a SKR Mini E3 v1.2 \
+This is for a SKR Mini E3 v1.2 \
 <https://github.com/bigtreetech/BIGTREETECH-SKR-mini-E3/>
 
-- Config > examples > BigTreeTech > SKR Mini E3 1.2
+## Initial Steps
+
+Need to do basic setup Marlin setup so the SKR Mini E3 works.
+
+- Go to Config > examples > BigTreeTech > SKR Mini E3 1.2
 - Copy all files to root of Marlin folder and overwrite Existing Files
 
 - In platformio.ini, change:
@@ -21,7 +25,8 @@ This is using a SKR Mini E3 v1.2 \
     - Under `[env:STM32F103RC_bigtree]` or the selected variant
       - Delete `Adafruit NeoPixel` from `lib_ignore`
 
-- In Configuration.h &rarr; (These should be set by the copied config files)
+- In Configuration.h &rarr; (These should all be set by the copied config files)
+
   - Ensure:
     - `#define SERIAL_PORT` &rarr; `2`
     - `#define SERIAL_PORT_2` &rarr; `-1`
@@ -42,46 +47,58 @@ This is using a SKR Mini E3 v1.2 \
   - Change:
     - `#define EEPROM_START_ADDRESS`: `1024` to `2048` -->
 
-# Setup BLTouch
+## Additional Steps
 
-In Configuration.h
+These are for added, personal extras
 
-- Enable:
-
-  - `#define BLTOUCH`
+- In Configuration.h
+  - Set Bed PID values
+    - Comment any Predefined PID values
+    - Run `M303 E-1 C8 S90`
+    - Use values outputt to set:
+      - DEFAULT_bedKp
+      - DEFAULT_bedKi
+      - DEFAULT_bedKd
   - `#define FAN_SOFT_PWM` &rarr; For possibly better fan noise
-  - `#define ENDSTOPPULLUPS`
-  - `#define AUTO_BED_LEVELING_BILINEAR`
-  - `#define RESTORE_LEVELING_AFTER_G28`
-  - `#define EXTRAPOLATE_BEYOND_GRID`
-  - `#define Z_SAFE_HOMING`
-  - `#define LCD_BED_LEVELING`
-  - `#define MULTIPLE_PROBING` &rarr; `3`
-  - `#define EXTRA_PROBING` &rarr; `2`
-  - For better probing
-    - `#define PROBING_FANS_OFF`
-    - `#define PROBING_STEPPERS_OFF`
 
-- Change:
+## Setup BLTouch
 
-  - `#define NOZZLE_TO_PROBE_OFFSET`
-    - For Bullseye:
-      - `{ -48, -10, 0 }`
-    - For Hero Me 2:
-      - `{ -41, -20, 0 }`
-  - `#define GRID_MAX_POINTS_X` &rarr; `5`
-  - `#define X_MIN_POS` &rarr; `1`
-  - `#define Y_MIN_POS` &rarr; `-5`
-  - `#define X_MAX_POS` &rarr; `X_BED_SIZE + 14`
-  - `#define Y_MAX_POS` &rarr; `Y_BED_SIZE - 4`
-  - `#define MIN_PROBE_EDGE` &rarr; `20`
+- In Configuration.h
 
-  In Configuration_adv.h
+  - Enable:
+
+    - `#define BLTOUCH`
+    - `#define ENDSTOPPULLUPS`
+    - `#define AUTO_BED_LEVELING_BILINEAR`
+    - `#define RESTORE_LEVELING_AFTER_G28`
+    - `#define EXTRAPOLATE_BEYOND_GRID`
+    - `#define Z_SAFE_HOMING`
+    - `#define LCD_BED_LEVELING`
+    - `#define MULTIPLE_PROBING` &rarr; `3`
+    - `#define EXTRA_PROBING` &rarr; `2`
+    - For better probing (if needed)
+      - `#define PROBING_FANS_OFF`
+      - `#define PROBING_STEPPERS_OFF`
+
+  - Change:
+    - `#define NOZZLE_TO_PROBE_OFFSET`
+      - For Bullseye:
+        - `{ -48, -10, 0 }`
+      - For Hero Me 2:
+        - `{ -41, -20, 0 }`
+    - `#define GRID_MAX_POINTS_X` &rarr; `5`
+    - `#define X_MIN_POS` &rarr; `1`
+    - `#define Y_MIN_POS` &rarr; `-5`
+    - `#define X_MAX_POS` &rarr; `X_BED_SIZE + 14`
+    - `#define Y_MAX_POS` &rarr; `Y_BED_SIZE - 4`
+    - `#define MIN_PROBE_EDGE` &rarr; `20`
+
+- In Configuration_adv.h
 
   - Enable `#define BABYSTEP_ZPROBE_OFFSET`
-  - `#define BABYSTEP_MULTIPLICATOR_Z` &rarr; `5` (so babysteps are bigger)
+  - `#define BABYSTEP_MULTIPLICATOR_Z` &rarr; `5` (so baby steps are bigger)
 
-# Trialling
+## Trialling
 
 - For more accurate probing
 
