@@ -12,12 +12,13 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "d:/Downloads/Marlin-2.0.1/.pio/build/STM32F103RC_bigtree_512K_USB/firmware.elf",
-            "toolchainBinDir": "C:/Users/ahobs/.platformio/packages/toolchain-gccarmnoneeabi/bin",
-            "svdPath": "C:/Users/ahobs/.platformio/platforms/ststm32/misc/svd/STM32F103xx.svd",
+            "executable": "/home/arranhs/Desktop/Marlin/.pio/build/STM32F103RC_btt_512K_USB/firmware.elf",
+            "projectEnvName": "STM32F103RC_btt_512K_USB",
+            "toolchainBinDir": "/home/arranhs/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "svdPath": "/home/arranhs/.platformio/platforms/ststm32@6.1.1/misc/svd/STM32F103xx.svd",
             "preLaunchTask": {
                 "type": "PlatformIO",
-                "task": "Pre-Debug"
+                "task": "Pre-Debug (STM32F103RC_btt_512K_USB)"
             },
             "internalConsoleOptions": "openOnSessionStart"
         },
@@ -25,9 +26,10 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "d:/Downloads/Marlin-2.0.1/.pio/build/STM32F103RC_bigtree_512K_USB/firmware.elf",
-            "toolchainBinDir": "C:/Users/ahobs/.platformio/packages/toolchain-gccarmnoneeabi/bin",
-            "svdPath": "C:/Users/ahobs/.platformio/platforms/ststm32/misc/svd/STM32F103xx.svd",
+            "executable": "/home/arranhs/Desktop/Marlin/.pio/build/STM32F103RC_btt_512K_USB/firmware.elf",
+            "projectEnvName": "STM32F103RC_btt_512K_USB",
+            "toolchainBinDir": "/home/arranhs/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "svdPath": "/home/arranhs/.platformio/platforms/ststm32@6.1.1/misc/svd/STM32F103xx.svd",
             "internalConsoleOptions": "openOnSessionStart"
         }
     ]
