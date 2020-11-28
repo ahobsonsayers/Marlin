@@ -52,13 +52,20 @@ Need to do basic setup Marlin setup so the SKR Mini E3 works.
 These are for added, personal extras
 
 - In Configuration.h
+  - Enable `#define PIDTEMPBED`
   - Set Bed PID values
     - Comment any Predefined PID values
     - Run `M303 E-1 C8 S90`
-    - Use values outputt to set:
+    - Use values output to set:
       - DEFAULT_bedKp
       - DEFAULT_bedKi
       - DEFAULT_bedKd
+    - Recommended:
+      ```
+      #define DEFAULT_bedKp 50.71
+      #define DEFAULT_bedKi 9.88
+      #define DEFAULT_bedKd 173.43
+      ```
   - `#define FAN_SOFT_PWM` &rarr; For possibly better fan noise
 
 ## Setup BLTouch
@@ -91,7 +98,7 @@ These are for added, personal extras
     - `#define Y_MIN_POS` &rarr; `-5`
     - `#define X_MAX_POS` &rarr; `X_BED_SIZE + 14`
     - `#define Y_MAX_POS` &rarr; `Y_BED_SIZE - 4`
-    - `#define MIN_PROBE_EDGE` &rarr; `20`
+    - `#define PROBING_MARGIN` &rarr; `20`
 
 - In Configuration_adv.h
 
